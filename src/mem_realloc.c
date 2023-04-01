@@ -1,33 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   mmap_alloc.c                                       :+:      :+:    :+:   */
+/*   mem_realloc.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/03/29 14:10:33 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/03/30 15:10:41 by dkhatri          ###   ########.fr       */
+/*   Created: 2023/04/01 16:54:50 by dkhatri           #+#    #+#             */
+/*   Updated: 2023/04/01 16:55:57 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "alloc.h"
 
-int	alloc_mmap(void *addr, size_t *len)
+void	*mem_realloc(t_list *alloc, t_list *pg, size_t size)
 {
-	void	*p;
-	size_t	page_len;
-	int		pg;
 
-	if (!addr || !len || !*len)
-		return (-1);
-	pg = getpagesize();
-	page_len = ((size_t)(*len / pg)) * pg;
-	if (*len % pg)
-		page_len += pg;
-	p = mmap(addr, page_len, PROT_READ | PROT_WRITE,
-			MAP_ANON | MAP_FIXED, -1, 0);
-	if (p == MAP_FAILED)
-		return (-1);
-	*len = page_len;
-	return (0);
 }

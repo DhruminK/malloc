@@ -5,105 +5,91 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/03/29 14:36:09 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/03/30 16:09:37 by dkhatri          ###   ########.fr       */
+/*   Created: 2023/04/01 14:15:24 by dkhatri           #+#    #+#             */
+/*   Updated: 2023/04/01 17:30:45 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "alloc.h"
 
-int	find_size(t_list *a, void *end, t_list **alloc, size_t size)
+void	*ft_mem_alloc_init(t_list *prev, void *addr, size_t size)
 {
-	t_mem_alloc	*al;
-	t_mem_alloc	*prev_al;
-
-	if (!a || !alloc)
-		return (-1);
-	*alloc = a;
-	a = a->next;
-	while (a)
-	{
-		al = (t_mem_alloc *)(a->content);
-		prev_al = (t_mem_alloc *)((*alloc)->content);
-		if ((size_t)(prev_al->end - al->start) >= size)
-			return (1);
-		*alloc = a;
-		a = a->next;
-	}
-	prev_al = (t_mem_alloc *)((*alloc)->content);
-	if ((size_t)(end - (prev_al)->end) >= size)
-		return (1);
-	return (0);
-}
-
-t_list	*ft_init_mem_info(t_list *ele, void *start, size_t size)
-{
-	t_mem_alloc	a;
-	t_mem_alloc	*al;
-	t_list		*el;
-
-	if (!ele || !size)
-		return (0);
-	if (!ele)
-		a.start = start;
+	t_list *ele;
+	
+	if (prev)
+		ele = prev->content + prev->size;
 	else
+		ele = (t_list *)addr;
+	ele->content = ele + sizeof(t_list);
+	ele->size = size;
+	if (prev)
 	{
-		al = (t_mem_alloc *)(ele->content);
-		a.start = al->end;
+		ele->next = prev->next;
+		prev->next = ele;
 	}
-	a.end = (void *)size;
-	a.data_start = a.start + sizeof(t_mem_alloc) + sizeof(t_list);
-	el = a.start;
-	el->content = a.start + sizeof(t_list);
-	ft_memcpy(el->content, &a, sizeof(t_mem_alloc));
-	el->size = sizeof(t_mem_alloc);
-	el->next = 0;
-	return (el);
+	return (ele->content);
 }
 
-int	ft_insert_mem_info(t_list *ele, void *start, size_t size, t_list **head)
+void	*ft_mem_alloc_page_end(t_list *pg, size_t size, t_list *prev_alloc)
 {
-	t_list		*el;
+	size_t		len;
+	size_t		ret;
+	t_page_info	*pg_info;
+	t_page_info	*pg_next_info;
 
-	if (!ele || !head)
-		return (-1);
-	el = ft_init_mem_info(ele, start, size);
-	if (!el)
+	if (!pg || !prev_alloc)
 		return (0);
-	if (!ele)
-		ft_lst_add_front(head, el);
-	else
-	{
-		el->next = ele->next;
-		ele->next = el;
-	}
-	return (0);
+	pg_info = (t_page_info*)(pg->content);
+	size = size + sizeof(t_list);
+	len = (size_t)(pg_info->page_end - prev_alloc->content - prev_alloc->size);
+	if (!(pg->next) && page_alloc_end(pg_info, size - len) == -1)
+		return (0);
+	if (!(pg->next))
+		return (ft_mem_alloc_init(prev_alloc, 0, size - sizeof(t_list)));
+	pg_next_info = (t_page_info*)(pg->next->content);
+	ret = pg_next_info->alloc_start - pg_info->page_end - len;
+	if (ret > size + PG_MARGIN && page_alloc_end(pg_info, size - len) == -1)
+		return (0);
+	if (ret < size + PG_MARGIN && ret >= size && page_alloc_merge(pg) == -1)
+		return (0);
+	return (ft_mem_alloc_init(prev_alloc, 0, size - sizeof(t_list)));
 }
 
-void	*zone_mem_alloc(size_t size, t_alloc_info *alloc)
+void	*ft_mem_alloc_mid(t_list *prev_alloc, t_list *pg, size_t size)
 {
-	t_list		*al;
-	t_mem_alloc	*mem;
-	int			b;
+	t_page_info	*pg_info;
+	size_t		len;
 
-	if (!size || !alloc)
+	if (!prev_alloc || !pg)
 		return (0);
-	size = size + sizeof(t_mem_alloc) + sizeof(t_list);
-	b = 0;
-	al = 0;
-	if (alloc->alloc)
+	len = (size_t)(prev_alloc->content + prev_alloc->size);
+	if (prev_alloc->next && (size_t)(prev_alloc->next - len)
+			>= size + sizeof(t_list))
+		return (ft_mem_alloc_init(prev_alloc, 0, size));
+	else if (prev_alloc->next)
+		return (0);
+	pg_info = (t_page_info *)(pg->content);
+	if ((size_t)(pg_info->page_end - len) > size + sizeof(t_list))
+		return (ft_mem_alloc_init(prev_alloc, 0, size));
+	return (ft_mem_alloc_page_end(pg, size, prev_alloc));
+}
+
+void	*ft_mem_alloc_start(t_list *pg, size_t size)
+{
+	t_list		*ele;
+	t_page_info	*pg_info;
+	void		*addr;
+
+	if (!pg)
 	{
-		mem = (t_mem_alloc *)(alloc->alloc->content);
-		if ((size_t)(mem->start - 1 - alloc->start) >= size)
-			b = 1;
-		if (!b && find_size(alloc->alloc, alloc->end, &al, size) == -1)
-			b = 1;
+		addr = (void *)(LARGE_ADDR);
+		if (g_gen_info.mem && (page_alloc_start() == -1))
+			return (0);
+		else if (!(g_gen_info.mem) && 
+				(new_page_alloc(&(g_gen_info.mem), &addr,
+								size + sizeof(t_list)) == -1))
+			return (0);
 	}
-	if ((!b && alloc->alloc) || (ft_insert_mem_info(al,
-				alloc->start, size, &(alloc->alloc)) == -1))
-		return (0);
-	if (!al)
-		al = alloc->alloc;
-	mem = (t_mem_alloc *)(al->content);
-	return (mem->data_start);
+	ft_lst_add_front(&(pg->alloc), (t_list *)(pg->alloc_start));
+	return (ft_mem-alloc_init(0, pg->alloc->start, size));
 }

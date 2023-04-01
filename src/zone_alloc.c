@@ -5,51 +5,68 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/03/29 16:10:15 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/03/30 16:11:29 by dkhatri          ###   ########.fr       */
+/*   Created: 2023/04/01 16:26:31 by dkhatri           #+#    #+#             */
+/*   Updated: 2023/04/01 16:48:10 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "alloc.h"
 
-int	zone_init(void)
+int	gen_info_init(void)
 {
-	size_t	len;
+	t_page_info	*pg_info;
 
-	if (g_gen_info.is_alloc)
+	if (g_gen_info.is_alloc == 1)
+		return (0);
+	g_gen_info.pg_size = getpagesize();
+	pg_info = &(g_gen_info.tiny);
+	pg_info->page_start = TINY_ADDR;
+	pg_info->page_end = SMALL_ADDR;
+	pg_info->alloc_start = pg_info->page_start;
+	pg_info->alloc = 0;
+	if (alloc_mmap(TINY_ADDR, (size_t)(SMALL_ADDR - TINY_ADDR)) == -1)
 		return (-1);
-	g_gen_info.tiny.start = (void *)TINY_ADDR;
-	g_gen_info.tiny.end = (void *)SMALL_ADDR;
-	g_gen_info.tiny.max = TINY_MAX;
-	g_gen_info.small.start = (void *)SMALL_ADDR;
-	g_gen_info.small.end = (void *)LARGE_ADDR;
-	g_gen_info.small.max = SMALL_MAX;
-	len = SMALL_ADDR - TINY_ADDR;
-	if (alloc_mmap(g_gen_info.tiny.start, &len) == -1)
-		return (-1);
-	len = LARGE_ADDR - SMALL_ADDR;
-	if (alloc_mmap(g_gen_info.small.start, &len) == -1)
+	pg_info = &(g_gen_info.small);
+	pg_info->page_start = SMALL_ADDR;
+	pg_info->page_end = LARGE_ADDR;
+	pg_info->alloc_start = pg_info->page_start;
+	pg_info->alloc = 0;
+	if (alloc_mmap(SMALL_ADDR, (size_t)(LARGE_ADDR - SMALL_ADDR)) == -1)
 		return (-1);
 	g_gen_info.is_alloc = 1;
-	g_gen_info.mem = 0;
 	return (0);
 }
 
-void	*malloc(size_t size)
+void	*zone_alloc(size_t size, t_page_info *pg_info)
 {
-	void		*p;
+	t_list	*alloc;
 
-	if (!size)
+	alloc = 0;
+	if (find_size_page(size, pg_info, &alloc) == 0)
 		return (0);
-	if (!(g_gen_info.is_alloc) && zone_init() == -1)
+	if (!alloc)
+		return (ft_mem_alloc_start(pg_info, size));
+	return (ft_mem_alloc_mid(alloc, pg_info, size));
+}
+
+int		zone_dealloc(void *addr, t_page_info *pg_info)
+{
+	t_list	*alloc;
+	t_list	*a;
+	int		ret;
+
+	if (!pg_info)
 		return (0);
-	p = 0;
-	if (size + sizeof(t_list) + sizeof(t_mem_alloc) < g_gen_info.tiny.max)
-		p = zone_mem_alloc(size, &(g_gen_info.tiny));
-	if (!p && (size + sizeof(t_list) + sizeof(t_mem_alloc)
-			< g_gen_info.small.max))
-		p = zone_mem_alloc(size, &(g_gen_info.small));
-	if (!p)
-		p = find_in_pages(size);
-	return (p);
+	ret = 0;
+	ret = find_alloc_in_page(addr, pg_info, &alloc);
+	if (ret < 1 || !alloc)
+		return (ret);
+	a = pg_info->alloc;
+	while (a != alloc && a->next != alloc)
+		a = a->next;
+	if (a == alloc)
+		ft_lst_remove_front(&(pg->alloc));
+	else
+		ft_lst_remove_front(&(a->next));
+	return (1);
 }
