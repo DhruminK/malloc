@@ -6,7 +6,7 @@
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/01 11:42:31 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/03 18:35:03 by dkhatri          ###   ########.fr       */
+/*   Updated: 2023/04/03 18:43:36 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,11 +65,14 @@ int					page_div(t_list *pg, t_list *alloc);
 int					page_dealloc_whole_pg(t_list *pg);
 int					find_size(size_t size, t_list **pg, t_list **alloc);
 void				*ft_mem_alloc_start(t_list *pg, size_t size);
-void				*ft_mem_alloc_mid(t_list *prev_alloc, t_list *pg, size_t size);
+void				*ft_mem_alloc_mid(t_list *prev_alloc,
+						t_list *pg, size_t size);
 int					find_alloc(void *addr, t_list **pg, t_list **alloc);
-int					find_alloc_in_page(void *addr, t_page_info *pg_info, t_list **alloc);
+int					find_alloc_in_page(void *addr,
+						t_page_info *pg_info, t_list **alloc);
 void				*mem_realloc(t_list *alloc, t_list *pg, size_t size);
-void				*mem_alloc_zone(t_list *alloc, t_page_info *pg_info, size_t size);
+void				*mem_alloc_zone(t_list *alloc,
+						t_page_info *pg_info, size_t size);
 int					ft_mem_dealloc(t_list *alloc, t_list *pg);
 int					ft_mem_dealloc_zone(t_list *alloc, t_page_info *pg_info);
 int					gen_info_init(void);
@@ -80,14 +83,17 @@ int					free_check_zones(void *addr);
 void				*large_alloc(size_t size);
 int					large_dealloc(void *addr);
 void				*large_realloc(void *addr, size_t size, int *ret);
-void				ft_str_frerror();
+void				ft_str_frerror(void);
 int					alloc_mmap(void *addr, size_t *size);
-int					find_realloc_same_ele_pg(t_list *alloc, t_page_info *pg_info, size_t size);
-void				*find_realloc(t_list *alloc, t_list *pg, size_t size, int is_zone);
+int					find_realloc_same_ele_pg(t_list *alloc,
+						t_page_info *pg_info, size_t size);
+void				*find_realloc(t_list *alloc, t_list *pg,
+						size_t size, int is_zone);
 void				*ft_zone_mem_alloc_start(t_page_info *pg_info, size_t size);
 void				*ft_zone_mem_alloc_mid(t_list *prev_alloc,
 						t_page_info *pg_info, size_t size);
-int					find_size_page(size_t size, t_page_info *pg_info, t_list **a);
+int					find_size_page(size_t size,
+						t_page_info *pg_info, t_list **a);
 void				*ft_mem_alloc_init(t_list *prev, void *addr, size_t size);
 
 #endif
