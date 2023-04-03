@@ -6,7 +6,7 @@
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/01 12:05:27 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/01 15:23:37 by dkhatri          ###   ########.fr       */
+/*   Updated: 2023/04/03 18:08:30 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ void	addr_div_pg_size(void **addr, char dir)
 
 	if (!addr)
 		return ;
-	rem = (*addr) % (g_gen_info.pg_size);
+	rem = ((size_t)(*addr)) % ((size_t)(g_gen_info.pg_size));
 	if (rem && dir)
 		(*addr) += (g_gen_info.pg_size - rem);
 	else if (rem)
@@ -28,9 +28,7 @@ void	addr_div_pg_size(void **addr, char dir)
 int	page_trim_end(t_page_info *pg_info)
 {
 	t_list		*alloc;
-	t_mem_alloc	*mem;
 	void		*end;
-	size_t		rem;
 
 	if (!pg_info)
 		return (-1);
@@ -39,8 +37,8 @@ int	page_trim_end(t_page_info *pg_info)
 		alloc = alloc->next;
 	end = (void *)(alloc->content + alloc->size);
 	addr_div_pg_size(&end, 1);
-	if (end >= pg_info->page_end || 
-			pg_info->page_end - end < g_gen_info.pg_size)
+	if (end >= pg_info->page_end
+		|| pg_info->page_end - end < g_gen_info.pg_size)
 		return (0);
 	if (munmap(end, (size_t)(pg_info->page_end - end)) == -1)
 		return (-1);
@@ -51,8 +49,8 @@ int	page_trim_end(t_page_info *pg_info)
 int	page_div_init_new_pg(t_list *pg, t_list *pg_next,
 		t_list *alloc, void *start)
 {
-	t_page_info	pg_info;
-	t_page_info	pg_next_info;
+	t_page_info	*pg_info;
+	t_page_info	*pg_next_info;
 
 	if (!pg || !pg_next || !alloc)
 		return (-1);
@@ -78,11 +76,11 @@ int	page_div(t_list *pg, t_list *alloc)
 
 	if (!pg || !alloc || !(alloc->next))
 		return (-1);
-	start = alloc->end;
+	start = alloc->content + alloc->size;
 	end = alloc->next - sizeof(t_list) - sizeof(t_page_info);
 	addr_div_pg_size(&end, 0);
 	addr_div_pg_size(&start, 1);
-	if ((size_t)(end - start) < g_gen_info.pg_size)
+	if ((size_t)(end - start) < (size_t)g_gen_info.pg_size)
 		return (0);
 	if (munmap(start, (size_t)(end - start)) == -1)
 		return (-1);
@@ -109,7 +107,7 @@ int	page_dealloc_whole_pg(t_list *pg)
 		return (0);
 	pg_info = (t_page_info *)(ele->content);
 	if (munmap(pg_info->page_start,
-				(size_t)(pg_info->page_end - pg_info->page_start)) == -1)
+			(size_t)(pg_info->page_end - pg_info->page_start)) == -1)
 		return (-1);
 	return (0);
 }

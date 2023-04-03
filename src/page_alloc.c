@@ -6,7 +6,7 @@
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/01 11:46:14 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/01 15:10:30 by dkhatri          ###   ########.fr       */
+/*   Updated: 2023/04/03 18:36:53 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,11 @@ int	page_alloc_end(t_page_info *pg_info, size_t size)
 {
 	if (!pg_info || !size)
 		return (-1);
-	if (size < g_gen_info.pg_size)
+	if (size < (size_t)g_gen_info.pg_size)
 		return (0);
 	if (alloc_mmap(pg_info->page_end, &size) == -1)
 		return (-1);
-	pg_info->page_end += len;
+	pg_info->page_end += size;
 	return (0);
 }
 
@@ -28,26 +28,27 @@ int	page_alloc_start(void)
 {
 	t_list		*pg;
 	t_list		*ele;
+	size_t		size;
 	t_page_info	*pg_info;
 
-	if (!g_gen_info.mem || g_gen_info.mem == LARGE_ADDR)
-		return (0);
-	if (!size)
+	if (!g_gen_info.mem || g_gen_info.mem == (void *)LARGE_ADDR)
 		return (0);
 	pg = g_gen_info.mem;
-	if ((size_t)(pg - LARGE_ADDR) < g_gen_info.pg_size)
+	if ((size_t)(pg - LARGE_ADDR) < (size_t)g_gen_info.pg_size)
 		return (0);
-	if (alloc_mmap((void *)LARGE_ADDR, pg - LARGE_ADDR) == -1)
+	size = (size_t)((void *)pg - (void *)LARGE_ADDR);
+	if (alloc_mmap((void *)LARGE_ADDR, &size) == -1)
 		return (-1);
-	ele = LARGE_ADDR;
+	ele = (t_list *)LARGE_ADDR;
 	ele->next = pg->next;
 	ele->size = pg->size;
 	ele->content = ele + sizeof(t_list);
 	pg_info = (t_page_info *)(ele->content);
 	ft_memcpy(pg_info, pg->content, sizeof(t_page_info));
-	pg_info->page_start = LARGE_ADDR;
-	pg_info->alloc_start = LARGE_ADDR + sizeof(t_list) + sizeof(t_page_info);
-	g_gen_info.mem = LARGE_ADDR;
+	pg_info->page_start = (void *)LARGE_ADDR;
+	pg_info->alloc_start = (void *)(LARGE_ADDR
+			+ sizeof(t_list) + sizeof(t_page_info));
+	g_gen_info.mem = (void *)LARGE_ADDR;
 	return (0);
 }
 
@@ -57,7 +58,7 @@ int	page_alloc_merge(t_list *pg)
 	t_page_info	*pg_info;
 	t_page_info	*pg_next_info;
 	t_list		*alloc;
-	size_t		len'
+	size_t		len;
 
 	if (!pg || !(pg->next))
 		return (-1);
@@ -76,7 +77,7 @@ int	page_alloc_merge(t_list *pg)
 	return (0);
 }
 
-int	new_page_alloc_func(void *ref, void *content)
+static int	new_page_alloc_func(void *ref, void *content)
 {
 	if (content < ref)
 		return (1);
@@ -86,8 +87,7 @@ int	new_page_alloc_func(void *ref, void *content)
 int	new_page_alloc(t_list **pg, void **addr, size_t size)
 {
 	t_list		*ele;
-	t_page_info	*pg_info
-	size_t		rem;
+	t_page_info	*pg_info;
 
 	if (!pg || !addr || !size || !*addr)
 		return (-1);

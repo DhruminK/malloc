@@ -6,7 +6,7 @@
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/01 14:15:24 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/01 17:30:45 by dkhatri          ###   ########.fr       */
+/*   Updated: 2023/04/03 17:53:21 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 
 void	*ft_mem_alloc_init(t_list *prev, void *addr, size_t size)
 {
-	t_list *ele;
-	
+	t_list	*ele;
+
 	if (prev)
 		ele = prev->content + prev->size;
 	else
@@ -39,14 +39,14 @@ void	*ft_mem_alloc_page_end(t_list *pg, size_t size, t_list *prev_alloc)
 
 	if (!pg || !prev_alloc)
 		return (0);
-	pg_info = (t_page_info*)(pg->content);
+	pg_info = (t_page_info *)(pg->content);
 	size = size + sizeof(t_list);
 	len = (size_t)(pg_info->page_end - prev_alloc->content - prev_alloc->size);
 	if (!(pg->next) && page_alloc_end(pg_info, size - len) == -1)
 		return (0);
 	if (!(pg->next))
 		return (ft_mem_alloc_init(prev_alloc, 0, size - sizeof(t_list)));
-	pg_next_info = (t_page_info*)(pg->next->content);
+	pg_next_info = (t_page_info *)(pg->next->content);
 	ret = pg_next_info->alloc_start - pg_info->page_end - len;
 	if (ret > size + PG_MARGIN && page_alloc_end(pg_info, size - len) == -1)
 		return (0);
@@ -76,7 +76,6 @@ void	*ft_mem_alloc_mid(t_list *prev_alloc, t_list *pg, size_t size)
 
 void	*ft_mem_alloc_start(t_list *pg, size_t size)
 {
-	t_list		*ele;
 	t_page_info	*pg_info;
 	void		*addr;
 
@@ -85,11 +84,13 @@ void	*ft_mem_alloc_start(t_list *pg, size_t size)
 		addr = (void *)(LARGE_ADDR);
 		if (g_gen_info.mem && (page_alloc_start() == -1))
 			return (0);
-		else if (!(g_gen_info.mem) && 
-				(new_page_alloc(&(g_gen_info.mem), &addr,
-								size + sizeof(t_list)) == -1))
+		else if (!(g_gen_info.mem)
+			&& (new_page_alloc(&(g_gen_info.mem), &addr,
+					size + sizeof(t_list)) == -1))
 			return (0);
+		pg = g_gen_info.mem;
 	}
-	ft_lst_add_front(&(pg->alloc), (t_list *)(pg->alloc_start));
-	return (ft_mem-alloc_init(0, pg->alloc->start, size));
+	pg_info = (t_page_info *)(pg->content);
+	ft_lst_add_front(&(pg_info->alloc), (t_list *)(pg_info->alloc_start));
+	return (ft_mem_alloc_init(0, pg_info->alloc_start, size));
 }
