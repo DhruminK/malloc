@@ -6,7 +6,7 @@
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/01 11:42:31 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/03 18:43:36 by dkhatri          ###   ########.fr       */
+/*   Updated: 2023/04/04 12:47:05 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,7 @@ int					free_check_zones(void *addr);
 void				*large_alloc(size_t size);
 int					large_dealloc(void *addr);
 void				*large_realloc(void *addr, size_t size, int *ret);
-void				ft_str_frerror(void);
+void				*ft_str_frerror(void *addr);
 int					alloc_mmap(void *addr, size_t *size);
 int					find_realloc_same_ele_pg(t_list *alloc,
 						t_page_info *pg_info, size_t size);

@@ -6,7 +6,7 @@
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/03 12:30:24 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/03 17:54:11 by dkhatri          ###   ########.fr       */
+/*   Updated: 2023/04/04 12:36:19 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ void	free(void *addr)
 	if (!ret)
 		ret = large_dealloc(addr);
 	if (ret == -1)
-		ft_str_frerror();
+		ft_str_frerror(addr);
 }
 
 void	*realloc(void *addr, size_t size)
@@ -54,21 +54,13 @@ void	*realloc(void *addr, size_t size)
 		return (0);
 	if (!addr)
 		return (malloc(size));
-	if (!size)
-	{
-		free(addr);
-		return (0);
-	}
 	ret = 0;
 	n_addr = (zone_realloc(addr, size, &ret));
-	if (!n_addr && ret == -1)
-	{
-		ft_str_frerror();
-		return (0);
-	}
-	ret = 0;
-	n_addr = (zone_realloc(addr, size, &ret));
-	if (!n_addr && ret == -1)
-		ft_str_frerror();
+	if (!n_addr && ret == 0)
+		n_addr = (zone_realloc(addr, size, &ret));
+	if (!n_addr && ret == 0)
+		n_addr = (large_realloc(addr, size, &ret));
+	if (ret == -1)
+		return (ft_str_frerror(addr));
 	return (n_addr);
 }

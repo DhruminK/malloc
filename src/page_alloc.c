@@ -6,7 +6,7 @@
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/01 11:46:14 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/03 18:36:53 by dkhatri          ###   ########.fr       */
+/*   Updated: 2023/04/04 10:29:51 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,7 @@ int	new_page_alloc(t_list **pg, void **addr, size_t size)
 	t_list		*ele;
 	t_page_info	*pg_info;
 
-	if (!pg || !addr || !size || !*addr)
+	if (!pg || !addr || !*addr)
 		return (-1);
 	size += sizeof(t_list) + sizeof(t_page_info);
 	addr_div_pg_size(addr, 1);

@@ -6,7 +6,7 @@
 #    By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/03/30 11:49:12 by dkhatri           #+#    #+#              #
-#    Updated: 2023/04/03 18:35:43 by dkhatri          ###   ########.fr        #
+#    Updated: 2023/04/04 12:21:42 by dkhatri          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,9 +25,10 @@ OBJ_DIR = obj
 INC_DEPS = alloc.h helper_func.h
 DEPS = $(addprefix $(INC_DIR), $(INC_DEPS))
 
-SRC_NAME = find_alloc.c find_realloc.c find_size.c helper_func.c \
-		   helper_func1.c large_alloc.c main_func.c mem_alloc.c mem_dealloc.c \
-		   mem_realloc.c page_alloc.c page_dealloc.c zone_alloc.c zone_mem_alloc.c
+SRC_NAME = find_alloc.c find_realloc.c find_size.c helper_func.c mmap_alloc.c\
+		   helper_func1.c large_alloc.c main_func.c mem_alloc.c mem_dealloc.c\
+		   mem_realloc.c page_alloc.c page_dealloc.c zone_alloc.c zone_mem_alloc.c\
+		   ft_print_func.c show_mem_alloc.c
 
 OBJ_NAME = $(SRC_NAME:.c=.o)
 

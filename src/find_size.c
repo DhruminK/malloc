@@ -6,7 +6,7 @@
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/01 15:32:24 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/03 18:36:38 by dkhatri          ###   ########.fr       */
+/*   Updated: 2023/04/04 10:28:41 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ int	find_size_page_end(size_t size, t_list *end, t_list *pg)
 	t_page_info	*pg_next_info;
 	void		*len;
 
-	if (!pg || !end || !size)
+	if (!pg || !end)
 		return (0);
 	size += sizeof(t_list);
 	if (pg->next == 0)
@@ -72,7 +72,7 @@ int	find_size(size_t size, t_list **pg, t_list **alloc)
 {
 	t_page_info	*pg_info;
 
-	if (!size || !pg || !alloc)
+	if (!pg || !alloc)
 		return (-1);
 	if (find_size_start(size) == 1)
 		return (1);

@@ -6,7 +6,7 @@
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/01 16:54:50 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/03 18:00:16 by dkhatri          ###   ########.fr       */
+/*   Updated: 2023/04/04 10:58:01 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ void	*mem_realloc(t_list *alloc, t_list *pg, size_t size)
 	addr = malloc(size);
 	if (!addr)
 		return (0);
+	ft_memcpy(addr, alloc->content, alloc->size);
 	ft_mem_dealloc(alloc, pg);
 	return (addr);
 }
