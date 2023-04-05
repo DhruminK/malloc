@@ -5,64 +5,66 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/04/04 11:51:20 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/04 12:24:02 by dkhatri          ###   ########.fr       */
+/*   Created: 2023/04/05 14:42:44 by dkhatri           #+#    #+#             */
+/*   Updated: 2023/04/05 15:59:05 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "alloc.h"
 
-void	ft_show_page_alloc(t_page_info *pg_info)
+void	ft_alloc_print(t_page_info *pg_info)
 {
-	t_list	*alloc;
+	t_list	*ele;
+	size_t	start;
+	size_t	end;
 
-	if (!pg_info || !(pg_info->alloc))
+	if (!pg_info)
 		return ;
-	alloc = pg_info->alloc;
-	while (alloc)
+	ele = pg_info->alloc;
+	while (ele)
 	{
-		ft_puthex_fd((size_t)(alloc->content), 1, 1);
+		start = (size_t)(ele->content);
+		end = (size_t)(ele->content + ele->size);
+		ft_puthex_fd(start, 1, 1);
 		ft_putstr_fd(" - ", 1);
-		ft_puthex_fd((size_t)(alloc->content + alloc->size - 1), 1, 1);
+		ft_puthex_fd(end, 1, 1);
 		ft_putstr_fd(" : ", 1);
-		ft_putunbr_fd(alloc->size, 1);
-		if (alloc->size > 1)
+		ft_putunbr_fd(end - start, 1);
+		if (end - start > 1)
 			ft_putstr_fd(" bytes\n", 1);
 		else
 			ft_putstr_fd(" byte\n", 1);
-		ft_putchar_fd('\n', 1);
-		alloc = alloc->next;
+		ele = ele->next;
 	}
 }
 
-void	ft_show_zone_alloc(char *str, size_t addr,
-			t_page_info *pg_info, t_list *pg)
+void	print_zone(char *str, int is_alloc, t_page_info *pg_info)
 {
-	if (!pg_info || !pg)
-		return ;
-	if (str)
-	{
-		ft_putstr_fd(str, 1);
-		ft_putstr_fd(" : ", 1);
-		ft_puthex_fd(addr, 1, 1);
-		ft_putchar_fd('\n', 1);
-	}
-	if (pg_info)
-		return (ft_show_page_alloc(pg_info));
-	while (pg)
-	{
-		pg_info = (t_page_info *)(pg->content);
-		ft_show_page_alloc(pg_info);
-		pg = pg->next;
-	}
+	ft_putstr_fd(str, 1);
+	if (!is_alloc)
+		ft_putstr_fd("0", 1);
+	else
+		ft_puthex_fd((size_t)(pg_info->page_start), 1, 1);
+	ft_putchar_fd('\n', 1);
+	if (is_alloc)
+		ft_alloc_print(pg_info);
 }
 
 void	show_alloc_mem(void)
 {
-	ft_show_zone_alloc("TINY", (size_t)TINY_ADDR,
-		&(g_gen_info.tiny), 0);
-	ft_show_zone_alloc("SMALL", (size_t)SMALL_ADDR,
-		&(g_gen_info.small), 0);
-	ft_show_zone_alloc("LARGE", (size_t)LARGE_ADDR,
-		0, g_gen_info.mem);
+	t_list		*pg;
+	t_page_info	*pg_info;
+
+	print_zone("TINY : ", g_gen_info.is_tiny_alloc, &(g_gen_info.tiny));
+	print_zone("SMALL : ", g_gen_info.is_small_alloc, &(g_gen_info.small));
+	ft_putstr_fd("LARGE : ", 1);
+	ft_puthex_fd((size_t)g_gen_info.large, 1, 1);
+	ft_putchar_fd('\n', 1);
+	pg = g_gen_info.large;
+	while (pg)
+	{
+		pg_info = (t_page_info *)(pg->content);
+		ft_alloc_print(pg_info);
+		pg = pg->next;
+	}
 }

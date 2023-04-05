@@ -5,109 +5,112 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/04/01 12:05:27 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/03 18:08:30 by dkhatri          ###   ########.fr       */
+/*   Created: 2023/04/05 19:00:17 by dkhatri           #+#    #+#             */
+/*   Updated: 2023/04/05 20:27:30 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "alloc.h"
 
-void	addr_div_pg_size(void **addr, char dir)
+void	page_div(t_list *pg, t_list *prev)
 {
-	size_t	rem;
+	void	*addr;
+	size_t	size;
 
-	if (!addr)
+	if (!pg || !prev || !(prev->next))
 		return ;
-	rem = ((size_t)(*addr)) % ((size_t)(g_gen_info.pg_size));
-	if (rem && dir)
-		(*addr) += (g_gen_info.pg_size - rem);
-	else if (rem)
-		(*addr) -= (rem);
+	addr = (char *)(prev->content) + prev->size;
+	size_to_pg((size_t *)(&addr), g_gen_info.pg_size, 1);
+	size = (size_t)((char *)(prev->next) - (char *)addr);
+	size -= sizeof(t_list) - sizeof(t_page_info);
+	size_to_pg(&size, g_gen_info.pg_size, 0);
+	if (size < g_gen_info.pg_size)
+		return ;
+	ft_page_div(pg, prev, addr, size);
+	return ;
 }
 
-int	page_trim_end(t_page_info *pg_info)
+void	page_end_dealloc(t_page_info *pg_info, t_list *prev)
 {
-	t_list		*alloc;
-	void		*end;
+	void	*addr;
+	size_t	size;
 
-	if (!pg_info)
-		return (-1);
-	alloc = pg_info->alloc;
-	while (alloc->next)
-		alloc = alloc->next;
-	end = (void *)(alloc->content + alloc->size);
-	addr_div_pg_size(&end, 1);
-	if (end >= pg_info->page_end
-		|| pg_info->page_end - end < g_gen_info.pg_size)
-		return (0);
-	if (munmap(end, (size_t)(pg_info->page_end - end)) == -1)
-		return (-1);
-	pg_info->page_end = end;
-	return (0);
+	if (!pg_info || !prev || prev->next)
+		return ;
+	addr = (char *)(prev->content) + prev->size;
+	size_to_pg((size_t *)(&addr), g_gen_info.pg_size, 1);
+	size = (size_t)((char *)(pg_info->page_end) - (char *)(addr));
+	if (size % g_gen_info.pg_size)
+		return ;
+	if (munmap(addr, size) == -1)
+		return ;
+	pg_info->page_end = addr;
 }
 
-int	page_div_init_new_pg(t_list *pg, t_list *pg_next,
-		t_list *alloc, void *start)
+void	whole_page_dealloc(t_list **pg)
 {
 	t_page_info	*pg_info;
-	t_page_info	*pg_next_info;
+	void		*addr;
+	void		*next_pg;
+	size_t		size;
 
-	if (!pg || !pg_next || !alloc)
-		return (-1);
-	pg_next->content = (void *)(pg_next + sizeof(t_list));
-	pg_next->size = sizeof(t_page_info);
-	pg_next->next = pg->next;
-	pg->next = pg_next;
-	pg_info = (t_page_info *)(pg->content);
-	pg_next_info = (t_page_info *)(pg_next->content);
-	pg_next_info->alloc_start = pg_next_info + sizeof(t_page_info);
-	pg_next_info->alloc = alloc->next;
-	alloc->next = 0;
-	pg_next_info->page_start = pg_next;
-	pg_next_info->page_end = pg_info->page_end;
-	pg_info->page_end = start;
-	return (0);
+	if (!pg || !*pg)
+		return ;
+	next_pg = (*pg)->next;
+	pg_info = (t_page_info *)((*pg)->content);
+	if (pg_info->alloc)
+		return ;
+	addr = (pg_info->page_start);
+	size = pg_info->page_end - pg_info->page_start;
+	if (size % g_gen_info.pg_size)
+		return ;
+	if (munmap(addr, size) == -1)
+		return ;
+	(*pg) = next_pg;
 }
 
-int	page_div(t_list *pg, t_list *alloc)
+void	page_dealloc_start(t_list **pg)
 {
-	void		*end;
-	void		*start;
+	t_page_info	pg_i;
+	t_page_info	*pg_info;
+	size_t		size;
+	size_t		len;
+	t_list		*ele;
 
-	if (!pg || !alloc || !(alloc->next))
-		return (-1);
-	start = alloc->content + alloc->size;
-	end = alloc->next - sizeof(t_list) - sizeof(t_page_info);
-	addr_div_pg_size(&end, 0);
-	addr_div_pg_size(&start, 1);
-	if ((size_t)(end - start) < (size_t)g_gen_info.pg_size)
-		return (0);
-	if (munmap(start, (size_t)(end - start)) == -1)
-		return (-1);
-	return (page_div_init_new_pg(pg, (t_list *)end, alloc, start));
+	if (!pg || !*pg)
+		return ;
+	ft_memcpy(&pg_i, (*pg)->content, sizeof(t_page_info));
+	if (!(pg_i.alloc))
+		return (whole_page_dealloc(pg));
+	size = (char *)(pg_i.alloc) - (char *)(pg_i.alloc_start);
+	size_to_pg(&size, g_gen_info.pg_size, 0);
+	if (munmap(pg_i.page_start, size) == -1)
+		return ;
+	len = (size_t)(pg_i.page_end - pg_i.page_start) - size;
+	ele = ft_lst_init_new_pg(pg_i.page_start + size, len);
+	pg_info = (t_page_info *)(ele->content);
+	pg_info->alloc = pg_i.alloc;
+	*pg = ele;
 }
 
-int	page_dealloc_whole_pg(t_list *pg)
+void	page_dealloc(t_list *pg, t_list *prev)
 {
 	t_list		*ele;
 	t_page_info	*pg_info;
-	t_list		*prev_pg;
 
-	if (pg == g_gen_info.mem)
-		prev_pg = 0;
-	else
-		prev_pg = g_gen_info.mem;
-	while (prev_pg && prev_pg->next != pg)
-		prev_pg = prev_pg->next;
-	if (!prev_pg)
-		ele = ft_lst_remove_front(&(g_gen_info.mem));
-	else
-		ele = ft_lst_remove_front(&(prev_pg->next));
-	if (!ele)
-		return (0);
-	pg_info = (t_page_info *)(ele->content);
-	if (munmap(pg_info->page_start,
-			(size_t)(pg_info->page_end - pg_info->page_start)) == -1)
-		return (-1);
-	return (0);
+	if (!pg)
+		return ;
+	if (!prev)
+	{
+		ele = g_gen_info.large;
+		while (ele && (ele != pg) && (ele->next != pg))
+			ele = ele->next;
+		if (ele == pg)
+			return (page_dealloc_start(&(g_gen_info.large)));
+		return (page_dealloc_start(&(ele->next)));
+	}
+	if (prev->next)
+		return (page_div(pg, prev));
+	pg_info = (t_page_info *)(pg->content);
+	return (page_end_dealloc(pg_info, prev));
 }

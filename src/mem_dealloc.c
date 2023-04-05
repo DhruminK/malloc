@@ -5,47 +5,44 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/04/01 15:20:24 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/03 17:58:33 by dkhatri          ###   ########.fr       */
+/*   Created: 2023/04/05 19:38:39 by dkhatri           #+#    #+#             */
+/*   Updated: 2023/04/05 20:28:25 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "alloc.h"
 
-int	ft_mem_dealloc(t_list *alloc, t_list *pg)
+int	ft_mem_dealloc(t_list *pg, t_list *alloc)
 {
+	t_list		*prev;
 	t_page_info	*pg_info;
-	t_list		*e;
 
-	if (!alloc || !pg)
+	if (!pg || !alloc)
 		return (-1);
 	pg_info = (t_page_info *)(pg->content);
-	e = pg_info->alloc;
-	while (e && e != alloc && e->next != alloc)
-		e = e->next;
-	if (e == alloc)
+	prev = pg_info->alloc;
+	while (prev && prev->next != alloc)
+		prev = prev->next;
+	if (!prev)
 		ft_lst_remove_front(&(pg_info->alloc));
 	else
-		ft_lst_remove_front(&(e->next));
-	if (!(pg_info->alloc))
-		return (page_dealloc_whole_pg(pg));
-	if (!(alloc->next))
-		return (page_trim_end(pg_info));
-	return (page_div(pg, e));
+		ft_lst_remove_front(&(prev->next));
+	page_dealloc(pg, prev);
+	return (0);
 }
 
-int	ft_mem_dealloc_zone(t_list *alloc, t_page_info *pg_info)
+int	ft_zone_mem_dealloc(t_page_info *pg_info, t_list *alloc)
 {
-	t_list	*e;
+	t_list	*prev;
 
-	if (!alloc || !pg_info)
+	if (!pg_info || !alloc)
 		return (-1);
-	e = pg_info->alloc;
-	while (e && (e->next != alloc) && (e != alloc))
-		e = e->next;
-	if (e == alloc)
+	prev = pg_info->alloc;
+	while (prev && prev->next != alloc)
+		prev = prev->next;
+	if (!prev)
 		ft_lst_remove_front(&(pg_info->alloc));
 	else
-		ft_lst_remove_front(&(e->next));
+		ft_lst_remove_front(&(prev->next));
 	return (0);
 }

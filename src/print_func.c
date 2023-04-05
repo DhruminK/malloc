@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_print_func.c                                    :+:      :+:    :+:   */
+/*   print_func.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/04/04 11:06:14 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/04 12:07:44 by dkhatri          ###   ########.fr       */
+/*   Created: 2023/04/05 11:06:51 by dkhatri           #+#    #+#             */
+/*   Updated: 2023/04/05 16:33:49 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,12 +39,8 @@ void	ft_putnbr_fd(long n, int fd)
 		write(fd, "-", 1);
 	}
 	if (n > 9)
-	{
 		ft_putnbr_fd(n / 10, fd);
-		ft_putchar_fd((n % 10) + '0', fd);
-	}
-	else if (n < 10)
-		ft_putchar_fd(n + '0', fd);
+	ft_putchar_fd((n % 10) + '0', fd);
 }
 
 void	ft_puthex_fd(size_t n, int fd, int is_prefix)
@@ -66,12 +62,7 @@ void	ft_puthex_fd(size_t n, int fd, int is_prefix)
 
 void	ft_putunbr_fd(size_t n, int fd)
 {
-	size_t	r;
-
-	if (!n)
-		return (ft_putchar_fd('0', fd));
-	if (n > 10)
+	if (n > 9)
 		ft_putunbr_fd(n / 10, fd);
-	r = n % 10;
-	ft_putchar_fd(r + '0', fd);
+	ft_putchar_fd((n % 10) + '0', fd);
 }
