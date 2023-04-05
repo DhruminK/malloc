@@ -6,7 +6,7 @@
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/01 11:42:31 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/04 12:47:05 by dkhatri          ###   ########.fr       */
+/*   Updated: 2023/04/04 15:03:59 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,14 +18,14 @@
 # include <pthread.h>
 # include "helper_func.h"
 
-# define LARGE_ADDR	0xA0000
-# define SMALL_ADDR	0x70000
+# define LARGE_ADDR	0xF0000
+# define SMALL_ADDR	0xA0000
 # define TINY_ADDR	0x50000
 
 # define PG_MARGIN	20
 
-# define SMALL_MAX	80
-# define TINY_MAX	40
+# define SMALL_MAX	(2 * g_gen_info.pg_size)
+# define TINY_MAX	(4 * g_gen_info.pg_size)
 
 typedef struct s_alloc_info
 {
@@ -95,5 +95,8 @@ void				*ft_zone_mem_alloc_mid(t_list *prev_alloc,
 int					find_size_page(size_t size,
 						t_page_info *pg_info, t_list **a);
 void				*ft_mem_alloc_init(t_list *prev, void *addr, size_t size);
+void				*malloc(size_t size);
+void				free(void *addr);
+void				*realloc(void *addr, size_t size);
 
 #endif

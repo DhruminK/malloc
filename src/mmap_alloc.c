@@ -6,7 +6,7 @@
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/29 14:10:33 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/03/30 15:10:41 by dkhatri          ###   ########.fr       */
+/*   Updated: 2023/04/04 17:04:45 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ int	alloc_mmap(void *addr, size_t *len)
 	if (*len % pg)
 		page_len += pg;
 	p = mmap(addr, page_len, PROT_READ | PROT_WRITE,
-			MAP_ANON | MAP_FIXED, -1, 0);
+			MAP_PRIVATE | MAP_ANON | MAP_FIXED, -1, 0);
 	if (p == MAP_FAILED)
 		return (-1);
 	*len = page_len;

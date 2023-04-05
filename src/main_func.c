@@ -6,7 +6,7 @@
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/03 12:30:24 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/04 12:36:19 by dkhatri          ###   ########.fr       */
+/*   Updated: 2023/04/04 16:03:29 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,14 +18,14 @@ void	*malloc(size_t size)
 {
 	void	*addr;
 
-	if (g_gen_info.is_alloc == 0)
-		gen_info_init();
+	if (g_gen_info.is_alloc == 0 && gen_info_init() == -1)
+		return (0);
 	if (!size)
 		return (0);
 	addr = 0;
-	if (size < TINY_MAX)
+	if (size < (size_t)TINY_MAX)
 		addr = zone_alloc(size, &(g_gen_info.tiny));
-	if (!addr && size < SMALL_MAX)
+	if (!addr && size < (size_t)SMALL_MAX)
 		addr = zone_alloc(size, &(g_gen_info.small));
 	if (!addr)
 		addr = large_alloc(size);

@@ -6,7 +6,7 @@
 #    By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/03/30 11:49:12 by dkhatri           #+#    #+#              #
-#    Updated: 2023/04/04 12:21:42 by dkhatri          ###   ########.fr        #
+#    Updated: 2023/04/05 10:43:51 by dkhatri          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,7 +17,7 @@ endif
 NAME = libft_malloc_$(HOSTTYPE).so
 
 CC = gcc
-CFLAGS = -Werror -Wall -Wextra
+CFLAGS = -Werror -Wall -Wextra -fPIC
 INC_DIR = include/
 SRC_DIR = src
 OBJ_DIR = obj
@@ -28,7 +28,7 @@ DEPS = $(addprefix $(INC_DIR), $(INC_DEPS))
 SRC_NAME = find_alloc.c find_realloc.c find_size.c helper_func.c mmap_alloc.c\
 		   helper_func1.c large_alloc.c main_func.c mem_alloc.c mem_dealloc.c\
 		   mem_realloc.c page_alloc.c page_dealloc.c zone_alloc.c zone_mem_alloc.c\
-		   ft_print_func.c show_mem_alloc.c
+		   ft_print_func.c show_mem_alloc.c frerror.c
 
 OBJ_NAME = $(SRC_NAME:.c=.o)
 
@@ -42,10 +42,8 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(DEPS)
 all: $(NAME)
 
 $(NAME): $(OBJS)
-	@ar -rc $(NAME) $(OBJS)
+	@gcc -dynamiclib -o $(NAME) $(OBJS)
 	@echo "Compiling $@ \033[1;32m[OK]\033[0m"
-	@ranlib $(NAME)
-	@echo "Indexing $@ \033[1;32m[OK]\033[0m"
 
 clean:
 	@/bin/rm -f $(OBJS)
