@@ -6,7 +6,7 @@
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/05 13:40:34 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/05 20:30:32 by dkhatri          ###   ########.fr       */
+/*   Updated: 2023/04/06 16:34:42 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,8 @@ int					find_size_in_pg_alloc(t_page_info *pg_info,
 						size_t size, t_list **prev);
 int					find_size_w_next_page(t_list *pg,
 						size_t size, t_list **prev);
+int					find_size(t_list *head, size_t size,
+						t_list **prev, t_list **pg);
 int					find_alloc_in_page(t_page_info *pg_info,
 						void *addr, t_list **alloc);
 int					find_alloc_multi_page(t_list *p, void *addr,
@@ -75,6 +77,8 @@ void				*mem_alloc(t_list **head, t_page_info *pg_info,
 int					ft_mem_dealloc(t_list *pg, t_list *alloc);
 int					ft_zone_mem_dealloc(t_page_info *pg_info, t_list *alloc);
 
+void				ft_str_frerror(void *addr);
 void				show_alloc_mem(void);
 void				*malloc(size_t size);
+void				free(void *addr);
 #endif
