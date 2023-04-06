@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/04/05 13:57:30 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/05 20:20:46 by dkhatri          ###   ########.fr       */
+/*   Created: 2023/04/06 19:15:09 by dkhatri           #+#    #+#             */
+/*   Updated: 2023/04/06 19:46:19 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,17 +18,15 @@ void	*malloc(size_t size)
 {
 	void	*addr;
 
-	if ((!(g_gen_info.is_tiny_alloc) || !(g_gen_info.is_small_alloc))
-		&& (zone_init() == -1))
+	if ((!g_gen_info.is_tiny_alloc || !g_gen_info.is_small_alloc)
+			&& zone_alloc_init() == -1)
 		return (0);
 	addr = 0;
-	if (size < TZ_MAX * g_gen_info.pg_size)
-		addr = mem_alloc(&(g_gen_info.large), &(g_gen_info.tiny),
-				size, 1);
-	if (!addr && size < SZ_MAX * g_gen_info.pg_size)
-		addr = mem_alloc(&(g_gen_info.large), &(g_gen_info.small),
-				size, 1);
+	if (g_gen_info.is_tiny_alloc && size < TZ_MAX * g_gen_info.pg_size)
+		addr = zone_mem_alloc(size, &(g_gen_info.tiny));
+	if (!addr && g_gen_info.is_small_alloc && size < SZ_MAX * g_gen_info.pg_size)
+		addr = zone_mem_alloc(size, &(g_gen_info.small));
 	if (!addr)
-		addr = mem_alloc(&(g_gen_info.large), 0, size, 0);
+		addr = mem_alloc(size);
 	return (addr);
 }

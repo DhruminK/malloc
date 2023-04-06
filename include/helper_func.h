@@ -6,7 +6,7 @@
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/05 10:49:43 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/05 14:11:56 by dkhatri          ###   ########.fr       */
+/*   Updated: 2023/04/06 16:11:06 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,5 +39,8 @@ void				ft_putstr_fd(char *s, int fd);
 void				ft_putnbr_fd(long n, int fd);
 void				ft_puthex_fd(size_t n, int fd, int is_prefix);
 void				ft_putunbr_fd(size_t n, int fd);
+
+void				ft_lst_disp(t_list *ele);
+void				ft_pg_disp(t_list *pg);
 
 #endif

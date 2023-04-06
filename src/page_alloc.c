@@ -5,42 +5,45 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/04/05 12:16:56 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/05 17:52:19 by dkhatri          ###   ########.fr       */
+/*   Created: 2023/04/06 17:54:00 by dkhatri           #+#    #+#             */
+/*   Updated: 2023/04/06 20:09:25 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "alloc.h"
 
-t_list	*new_page_alloc(t_list **head, size_t size)
+int	ft_check_zone_alloc(size_t addr, size_t size)
 {
-	void	*addr;
-	t_list	*pg;
+	size_t	end;
+	t_page_info	*pg_info;
 
-	if (!head)
-		return (0);
-	size += sizeof(t_list) + sizeof(t_page_info);
-	addr = mmap_alloc(0, &size);
-	if (!addr)
-		return (0);
-	pg = ft_lst_init_new_pg(addr, size);
-	ft_lst_add_page_to_lst(head, &addr, pg);
-	return ((t_list *)addr);
+	pg_info = &(g_gen_info.tiny);
+	end = addr + size;
+	if (pg_info->page_start <= addr && addr < pg_info->page_end)
+		return (1);
+	if (pg_info->page_start <= end && end < pg_info->page_end)
+		return (1);
+	if (addr <= pg_info->page_start && pg_info->page_start < end)
+		return (1);
+	if (addr <= pg_info->page_end && pg_info->page_end < end)
+		return (1);
+	return (0);
 }
 
-int	new_zone_alloc(size_t size, t_page_info *pg_info)
+int	new_page_alloc(t_list **head, size_t size, t_list **e)
 {
 	void	*addr;
 
-	if (!pg_info)
+	if (!head || !e)
 		return (-1);
-	addr = mmap_alloc(0, &size);
+	*e = 0;
+	size = size + sizeof(t_list) + sizeof(t_page_info);
+	size_to_pg(&size, (size_t)getpagesize(), 1);
+	addr = mmap_alloc(0, size);
 	if (!addr)
 		return (-1);
-	pg_info->page_start = addr;
-	pg_info->page_end = ((char *)addr) + size;
-	pg_info->alloc_start = addr;
-	pg_info->alloc = 0;
+	*e = new_pg_ele_init(addr, size);
+	pg_add_to_lst(head, *e, e);
 	return (0);
 }
 
@@ -49,13 +52,35 @@ int	page_end_alloc(t_list *pg, size_t size)
 	void		*addr;
 	t_page_info	*pg_info;
 
-	if (!pg)
+	if (!pg || !size)
 		return (-1);
 	pg_info = (t_page_info *)(pg->content);
-	addr = mmap_alloc(pg_info->page_end, &size);
-	if (!addr)
+	addr = (void *)(pg_info->page_end);
+	size_to_pg(&size, (size_t)getpagesize(), 1);
+	if (ft_check_zone_alloc((size_t)addr, size) == 0
+			|| addr + size > (void *)(pg->next))
 		return (0);
-	pg_info->page_end = ((char *)(pg_info->page_end)) + size;
-	ft_lst_merge_page_after(pg);
+	if (mmap_alloc(addr, size) == 0)
+		return (-1);
+	pg_merge_after(pg);
+	return (1);
+}
+
+int	new_zone_alloc(t_page_info *pg_info, size_t size)
+{
+	void	*addr;
+
+	if (!pg_info)
+		return (-1);
+	if (!size)
+		size = (size_t)getpagesize();
+	size_to_pg(&size, (size_t)getpagesize(), 1);
+	addr = mmap_alloc(0, size);
+	if (!addr)
+		return (-1);
+	pg_info->page_start = (size_t)addr;
+	pg_info->page_end = pg_info->page_start + size;
+	pg_info->alloc_start = pg_info->page_start;
+	pg_info->alloc = 0;
 	return (1);
 }

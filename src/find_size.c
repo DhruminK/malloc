@@ -5,74 +5,76 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/04/05 12:06:08 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/06 16:30:16 by dkhatri          ###   ########.fr       */
+/*   Created: 2023/04/06 18:24:26 by dkhatri           #+#    #+#             */
+/*   Updated: 2023/04/06 20:13:13 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "alloc.h"
 
-int	find_size_in_pg_alloc(t_page_info *pg_info, size_t size, t_list **prev)
+int	find_size_in_pg(t_page_info *pg_info, size_t size, t_list **prev)
 {
-	*prev = 0;
+	size_t	len;
+
+	if (!pg_info || !prev)
+		return (-1);
 	size += sizeof(t_list);
-	if (!(pg_info->alloc) && size <= (size_t)(pg_info->page_end
-		- pg_info->page_start))
+	if ((pg_info->alloc) == 0 && (pg_info->page_end - pg_info->alloc_start) >= size)
 		return (1);
-	if (!(pg_info->alloc))
-		return (0);
-	*prev = pg_info->alloc;
+	if (pg_info->alloc_start - (size_t)(pg_info->alloc) >= size)
+		return (1);
+	*prev = (t_list *)(pg_info->alloc);
 	while ((*prev)->next)
 	{
-		if (((size_t)((void *)(*prev)->next - (*prev)->content
-			- (*prev)->size)) >= size)
+		len = (size_t)((*prev)->next) - (size_t)((*prev)->content) - (*prev)->size;
+		if ((void *)((*prev)->next) > (*prev)->content && len >= size)
 			return (1);
-		(*prev) = (*prev)->next;
+		*prev = (*prev)->next;
 	}
-	if ((size_t)(pg_info->page_end - (*prev)->content - (*prev)->size) >= size)
+	len = pg_info->page_end - (size_t)((*prev)->content) - (*prev)->size;
+	if (len >= size)
 		return (1);
 	return (0);
 }
 
-int	find_size_w_next_page(t_list *pg, size_t size, t_list **prev)
+int	find_size_w_next_pg(t_list *pg, size_t size, t_list **prev)
 {
 	t_page_info	*pg_info;
-	void		*addr;
+	size_t		addr;
 	size_t		len;
 
-	if (!pg)
+	if (!pg || !prev)
 		return (0);
 	pg_info = (t_page_info *)(pg->content);
-	if (find_size_in_pg_alloc(pg_info, size, prev) == 1)
+	if (find_size_in_pg(pg_info, size, prev) == 1)
 		return (1);
-	size += sizeof(t_list);
 	if (!*prev)
 		addr = pg_info->alloc_start;
 	else
-		addr = ((*prev)->content + (*prev)->size);
-	len = size - (pg_info->page_end - addr);
-	if ((size_t)((void *)pg->next + sizeof(t_list)
-		+ sizeof(t_page_info) - pg_info->page_end) < size
-		|| check_zone_alloc(pg_info->page_end, len) == 1)
+		addr = (size_t)((*prev)->content) + (*prev)->size;
+	len = (size_t)(pg->next) - (size_t)(addr);
+	if (len + sizeof(t_list) + sizeof(t_page_info) < size + sizeof(t_list))
 		return (0);
-	if (page_end_alloc(pg, len) < 1)
+	len = size - ((pg_info->page_end) - addr);
+	if (len + pg_info->page_end + PG_MARGIN >= (size_t)(pg->next))
+		len = pg_info->page_end - (size_t)pg->next;
+	if (page_end_alloc(pg, len) == -1)
 		return (0);
 	return (1);
 }
 
-int	find_size(t_list *head, size_t size, t_list **prev, t_list **pg)
+int	find_size(t_list *head, size_t size,
+		t_list **pg, t_list **prev)
 {
-	int	ret;
-
-	if (!pg || !head)
-		return (0);
+	if (!head || !pg || !prev)
+		return (-1);
 	(*pg) = head;
 	while (*pg)
 	{
-		ret = find_size_w_next_page(*pg, size, prev);
-		if (ret != 0)
-			return (ret);
-		(*pg) = (*pg)->next;
+		*prev = 0;
+		if (find_size_w_next_pg(*pg, size, prev) == 1)
+			return (1);
+		*pg = (*pg)->next;
 	}
 	return (0);
 }

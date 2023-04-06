@@ -6,7 +6,7 @@
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/05 14:42:44 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/05 15:59:05 by dkhatri          ###   ########.fr       */
+/*   Updated: 2023/04/06 19:29:38 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ void	ft_alloc_print(t_page_info *pg_info)
 
 	if (!pg_info)
 		return ;
-	ele = pg_info->alloc;
+	ele = (t_list *)(pg_info->alloc);
 	while (ele)
 	{
 		start = (size_t)(ele->content);
