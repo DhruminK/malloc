@@ -6,7 +6,7 @@
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/06 17:34:13 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/06 19:25:29 by dkhatri          ###   ########.fr       */
+/*   Updated: 2023/04/07 14:15:26 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,13 +43,14 @@ int	pg_merge_after(t_list *pg)
 	if ((void *)pg_info->page_end != (void *)(pg->next))
 		return (0);
 	pg_next_info = (t_page_info *)(pg->next->content);
-	ft_lst_add_back((t_list **)&(pg_info->alloc), (t_list*)(pg_next_info->alloc));
+	ft_lst_add_back((t_list **)&(pg_info->alloc),
+		(t_list *)(pg_next_info->alloc));
 	pg_info->page_end = pg_next_info->page_end;
 	pg->next = pg->next->next;
 	return (1);
 }
 
-void 	pg_add_to_lst(t_list **head, t_list *ele, t_list **e)
+void	pg_add_to_lst(t_list **head, t_list *ele, t_list **e)
 {
 	t_list		*pg;
 	t_page_info	*pg_info;

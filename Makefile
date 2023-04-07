@@ -6,7 +6,7 @@
 #    By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/03/30 11:49:12 by dkhatri           #+#    #+#              #
-#    Updated: 2023/04/06 19:29:15 by dkhatri          ###   ########.fr        #
+#    Updated: 2023/04/07 17:12:42 by dkhatri          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,9 +27,9 @@ INC_DEPS = alloc.h helper_func.h
 DEPS = $(addprefix $(INC_DIR), $(INC_DEPS))
 
 HELPER_SRCS = lst_add_func.c lst_rm_func.c print_func.c mem_func.c
-PAGE_SRCS = page_helper_func.c page_alloc.c find_size.c mmap_alloc.c #page_dealloc.c find_alloc.c
-MEM_SRCS = mem_alloc.c #mem_init.c #mem_dealloc.c
-MAIN_SRCS = malloc.c show_mem_alloc.c #free.c
+PAGE_SRCS = page_helper_func.c page_alloc.c find_size.c mmap_alloc.c page_dealloc.c find_alloc.c
+MEM_SRCS = mem_alloc.c mem_dealloc.c
+MAIN_SRCS = malloc.c show_mem_alloc.c free.c
 
 SRC_NAME = $(HELPER_SRCS) $(PAGE_SRCS) $(MEM_SRCS) $(MAIN_SRCS)
 
@@ -50,7 +50,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(DEPS)
 all: $(NAME)
 
 $(NAME): $(OBJS)
-	@gcc -dynamiclib -o $(NAME) $(OBJS)
+	@gcc -dynamiclib -o $(NAME) $(OBJS) -lpthread
 	@echo "Compiling $@ \033[1;32m[OK]\033[0m"
 	@ln -s -f $(NAME) $(LIBNAME)
 

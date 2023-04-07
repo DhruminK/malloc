@@ -6,7 +6,7 @@
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/06 17:54:00 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/06 20:09:25 by dkhatri          ###   ########.fr       */
+/*   Updated: 2023/04/07 14:14:43 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,19 +14,19 @@
 
 int	ft_check_zone_alloc(size_t addr, size_t size)
 {
-	size_t	end;
+	size_t		end;
 	t_page_info	*pg_info;
 
 	pg_info = &(g_gen_info.tiny);
 	end = addr + size;
 	if (pg_info->page_start <= addr && addr < pg_info->page_end)
-		return (1);
+		return (0);
 	if (pg_info->page_start <= end && end < pg_info->page_end)
-		return (1);
+		return (0);
 	if (addr <= pg_info->page_start && pg_info->page_start < end)
-		return (1);
+		return (0);
 	if (addr <= pg_info->page_end && pg_info->page_end < end)
-		return (1);
+		return (0);
 	return (0);
 }
 
@@ -58,8 +58,8 @@ int	page_end_alloc(t_list *pg, size_t size)
 	addr = (void *)(pg_info->page_end);
 	size_to_pg(&size, (size_t)getpagesize(), 1);
 	if (ft_check_zone_alloc((size_t)addr, size) == 0
-			|| addr + size > (void *)(pg->next))
-		return (0);
+		|| addr + size > (void *)(pg->next))
+		return (-1);
 	if (mmap_alloc(addr, size) == 0)
 		return (-1);
 	pg_merge_after(pg);

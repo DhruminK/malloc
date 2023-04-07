@@ -6,7 +6,7 @@
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/06 18:53:41 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/06 20:19:48 by dkhatri          ###   ########.fr       */
+/*   Updated: 2023/04/07 14:14:27 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,11 +21,11 @@ int	zone_alloc_init(void)
 	if (g_gen_info.is_tiny_alloc && g_gen_info.is_small_alloc)
 		return (1);
 	if (!(g_gen_info.is_tiny_alloc)
-			&& new_zone_alloc(&(g_gen_info.tiny), TZ_SIZE * pg_size) == -1)
+		&& new_zone_alloc(&(g_gen_info.tiny), TZ_SIZE * pg_size) == -1)
 		return (-1);
 	g_gen_info.is_tiny_alloc = 1;
 	if (!(g_gen_info.is_small_alloc)
-			&& new_zone_alloc(&(g_gen_info.small), SZ_SIZE * pg_size) == -1)
+		&& new_zone_alloc(&(g_gen_info.small), SZ_SIZE * pg_size) == -1)
 		return (-1);
 	g_gen_info.is_small_alloc = 1;
 	return (1);
@@ -52,6 +52,16 @@ void	*mem_alloc_init(t_page_info *pg_info, t_list *prev, size_t size)
 	return (ele->content);
 }
 
+void	*zone_mem_alloc(size_t size, t_page_info *pg_info)
+{
+	t_list	*prev;
+
+	prev = 0;
+	if (find_size_in_pg(pg_info, size, &prev) < 1)
+		return (0);
+	return (mem_alloc_init(pg_info, prev, size));
+}
+
 void	*mem_alloc(size_t size)
 {
 	t_list	*prev;
@@ -65,17 +75,7 @@ void	*mem_alloc(size_t size)
 		return (mem_alloc_init((t_page_info *)(pg->content), prev, size));
 	pg = 0;
 	if (new_page_alloc(&(g_gen_info.large),
-				size + sizeof(t_list), &pg) == -1 || !pg)
+			size + sizeof(t_list), &pg) == -1 || !pg)
 		return (0);
-	return (mem_alloc_init((t_page_info *)(pg->content), 0, size));
-}
-
-void	*zone_mem_alloc(size_t size, t_page_info *pg_info)
-{
-	t_list	*prev;
-
-	prev = 0;
-	if (find_size_in_pg(pg_info, size, &prev) < 1)
-		return (0);
-	return (mem_alloc_init(pg_info, prev, size));
+	return (zone_mem_alloc(size, (t_page_info *)(pg->content)));
 }
