@@ -6,7 +6,7 @@
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/05 13:40:34 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/07 17:27:09 by dkhatri          ###   ########.fr       */
+/*   Updated: 2023/04/08 18:21:04 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,7 @@ typedef struct s_gen_info
 extern t_gen_info	g_gen_info;
 
 void				*malloc(size_t size);
+void				*realloc(void *addr, size_t size);
 void				free(void *addr);
 void				show_alloc_mem(void);
 void				ft_str_frerror(void *addr);
@@ -54,6 +55,18 @@ void				ft_str_frerror(void *addr);
 int					zone_alloc_init(void);
 void				*zone_mem_alloc(size_t size, t_page_info *pg_info);
 void				*mem_alloc(size_t size);
+int					mem_realloc(void *addr, size_t size, void **new_addr);
+int					zone_mem_realloc(void *addr, size_t size,
+						t_page_info *pg_info, void **new_addr);
+
+void				mem_dealloc_gen(t_list *pg,
+						t_page_info *pg_info, t_list *alloc);
+void				*mem_realloc_end_func(t_list *pg,
+						t_list *alloc, size_t size);
+void				*mem_realloc_in_page(t_page_info *pg_info,
+						t_list *alloc, size_t size);
+void				*mem_realloc_w_page(t_list *pg,
+						t_list *alloc, size_t size);
 
 int					find_size_in_pg(t_page_info *pg_info,
 						size_t size, t_list **prev);
@@ -84,4 +97,8 @@ int					find_addr_in_pg(t_page_info *pgi,
 						void *addr, t_list **alloc);
 int					find_addr(t_list *head, void *addr,
 						t_list **pg, t_list **alloc);
+
+void				page_info_disp(t_page_info *pg_info);
+void				page_disp(t_list *pg);
+
 #endif

@@ -6,7 +6,7 @@
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/05 10:49:43 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/06 16:11:06 by dkhatri          ###   ########.fr       */
+/*   Updated: 2023/04/08 18:19:51 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,13 +34,11 @@ t_list				*ft_lst_remove(t_list **head, void *ref,
 						int (*f)(void *, void *));
 void				*ft_memcpy(void *dst, const void *src, size_t n);
 void				*ft_memset(void *b, int c, size_t len);
+void				*ft_memmove(void *dst, const void *src, size_t len);
 void				ft_putchar_fd(char c, int fd);
 void				ft_putstr_fd(char *s, int fd);
 void				ft_putnbr_fd(long n, int fd);
 void				ft_puthex_fd(size_t n, int fd, int is_prefix);
 void				ft_putunbr_fd(size_t n, int fd);
-
-void				ft_lst_disp(t_list *ele);
-void				ft_pg_disp(t_list *pg);
 
 #endif

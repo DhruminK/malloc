@@ -6,19 +6,38 @@
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/07 16:22:32 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/07 17:29:47 by dkhatri          ###   ########.fr       */
+/*   Updated: 2023/04/08 18:12:51 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "alloc.h"
 
+void	mem_dealloc_gen(t_list *pg, t_page_info *pg_info, t_list *alloc)
+{
+	t_list		**head;
+	t_list		*ele;
+	t_page_info	*pgi;
+
+	if (!alloc)
+		return ;
+	pgi = pg_info;
+	if (!pgi)
+		pgi = (t_page_info *)(pg->content);
+	ele = (t_list *)(pgi->alloc);
+	while (ele && ele->next != alloc)
+		ele = ele->next;
+	head = (t_list **)&(pgi->alloc);
+	if (ele)
+		head = &(ele->next);
+	*head = alloc->next;
+	if (!pg_info)
+		ft_page_div(pg, ele);
+}
+
 int	mem_dealloc(void *addr)
 {
 	t_list		*pg;
 	t_list		*alloc;
-	t_list		*ele;
-	t_list		**head;
-	t_page_info	*pg_info;
 
 	if (!addr)
 		return (0);
@@ -26,23 +45,13 @@ int	mem_dealloc(void *addr)
 	alloc = 0;
 	if (find_addr(g_gen_info.large, addr, &pg, &alloc) < 1)
 		return (-1);
-	pg_info = (t_page_info *)(pg->content);
-	ele = (t_list *)(pg_info->alloc);
-	while (ele && ele != alloc && ele->next != alloc)
-		ele = ele->next;
-	head = (t_list **)&(pg_info->alloc);
-	if (ele != alloc)
-		head = &(ele->next);
-	*head = alloc->next;
-	ft_page_div(pg, ele);
+	mem_dealloc_gen(pg, 0, alloc);
 	return (1);
 }
 
 int	zone_mem_dealloc(void *addr, t_page_info *pg_info)
 {
 	t_list		*ele;
-	t_list		*prev;
-	t_list		**head;
 	int			ret;
 
 	if (!addr || !pg_info)
@@ -50,12 +59,6 @@ int	zone_mem_dealloc(void *addr, t_page_info *pg_info)
 	ret = find_addr_in_pg(pg_info, addr, &ele);
 	if (ret < 1)
 		return (ret);
-	prev = (t_list *)pg_info->alloc;
-	while (prev && prev != ele && prev->next != ele)
-		prev = prev->next;
-	head = (t_list **)&(pg_info->alloc);
-	if (prev->next == ele)
-		head = &(prev->next);
-	*head = ele->next;
+	mem_dealloc_gen(0, pg_info, ele);
 	return (1);
 }

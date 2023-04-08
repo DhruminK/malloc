@@ -6,7 +6,7 @@
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/06 17:25:43 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/07 17:12:07 by dkhatri          ###   ########.fr       */
+/*   Updated: 2023/04/08 12:04:59 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ int	munmap_dealloc(void *addr, size_t size)
 	if (!addr || !size)
 		return (-1);
 	pg_size = getpagesize();
-	if (((size_t)addr) % pg_size || size % pg_size)
+	if ((((size_t)addr) % pg_size) || size % pg_size)
 		return (-1);
 	if (munmap(addr, size) == -1)
 		return (-1);

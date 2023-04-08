@@ -6,7 +6,7 @@
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/07 14:55:50 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/07 17:15:53 by dkhatri          ###   ########.fr       */
+/*   Updated: 2023/04/08 12:10:55 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,25 +15,24 @@
 void	ft_whole_pg_dealloc(t_list *pg)
 {
 	t_list		*e;
-	t_list		**addr;
 	t_page_info	*pgi;
 	size_t		size;
 	void		*next;
 
 	if (!pg)
 		return ;
-	e = (g_gen_info.large);
 	next = pg->next;
-	while (e && e == pg && e->next == pg)
+	e = (g_gen_info.large);
+	while (e && e->next != pg)
 		e = e->next;
-	addr = &(g_gen_info.large);
-	if (e->next != pg)
-		addr = &(e->next);
 	pgi = (t_page_info *)(pg->content);
 	size = (pgi->page_end - pgi->page_start);
 	if (munmap_dealloc((void *)pgi->page_start, size) == -1)
 		return ;
-	*addr = next;
+	if (e)
+		e->next = next;
+	else
+		g_gen_info.large = next;
 }
 
 void	ft_page_dealloc_start(t_list *pg)
@@ -100,13 +99,14 @@ void	ft_page_div(t_list *pg, t_list *prev)
 		return ;
 	size = (size_t)(prev->next) - addr
 		- sizeof(t_list) - sizeof(t_page_info);
-	size_to_pg(&addr, (size_t)getpagesize(), 0);
+	size_to_pg(&size, (size_t)getpagesize(), 0);
 	if (munmap_dealloc((void *)addr, size) == -1)
 		return ;
 	ele = new_pg_ele_init((void *)(addr + size),
 			(pgi->page_end - addr - size));
 	ele->next = pg->next;
 	pg->next = ele;
+	pgi->page_end = (size_t)(addr);
 	pgi = (t_page_info *)(ele->content);
 	pgi->alloc = (size_t)prev->next;
 	prev->next = 0;
