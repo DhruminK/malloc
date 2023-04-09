@@ -6,7 +6,7 @@
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/06 19:15:09 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/07 14:13:55 by dkhatri          ###   ########.fr       */
+/*   Updated: 2023/04/09 18:15:30 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,8 @@ void	*malloc(size_t size)
 {
 	void	*addr;
 
-	if ((!g_gen_info.is_tiny_alloc || !g_gen_info.is_small_alloc)
-		&& zone_alloc_init() == -1)
-		return (0);
+	if ((!g_gen_info.is_tiny_alloc || !g_gen_info.is_small_alloc))
+		zone_alloc_init();
 	addr = 0;
 	if (g_gen_info.is_tiny_alloc && size < TZ_MAX * g_gen_info.pg_size)
 		addr = zone_mem_alloc(size, &(g_gen_info.tiny));

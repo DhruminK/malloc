@@ -6,7 +6,7 @@
 #    By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/03/30 11:49:12 by dkhatri           #+#    #+#              #
-#    Updated: 2023/04/08 18:11:57 by dkhatri          ###   ########.fr        #
+#    Updated: 2023/04/09 15:48:47 by dkhatri          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -26,17 +26,14 @@ OBJ_DIR = obj
 INC_DEPS = alloc.h helper_func.h
 DEPS = $(addprefix $(INC_DIR), $(INC_DEPS))
 
-HELPER_SRCS = lst_add_func.c lst_rm_func.c print_func.c mem_func.c test_helper_func.c
-PAGE_SRCS = page_helper_func.c page_alloc.c find_size.c mmap_alloc.c page_dealloc.c find_alloc.c
+HELPER_SRCS = lst_add_func.c lst_rm_func.c print_func.c mem_func.c \
+			  test_helper_func.c
+PAGE_SRCS = page_helper_func.c page_alloc.c find_size.c mmap_alloc.c\
+			page_dealloc.c find_alloc.c
 MEM_SRCS = mem_alloc.c mem_dealloc.c mem_realloc.c mem_realloc_func.c
 MAIN_SRCS = malloc.c show_mem_alloc.c free.c realloc.c
 
 SRC_NAME = $(HELPER_SRCS) $(PAGE_SRCS) $(MEM_SRCS) $(MAIN_SRCS)
-
-#SRC_NAME = find_alloc.c find_realloc.c find_size.c helper_func.c mmap_alloc.c\
-#		   helper_func1.c large_alloc.c main_func.c mem_alloc.c mem_dealloc.c\
-#		   mem_realloc.c page_alloc.c page_dealloc.c zone_alloc.c zone_mem_alloc.c\
-#		   ft_print_func.c show_mem_alloc.c frerror.c
 
 OBJ_NAME = $(SRC_NAME:.c=.o)
 
