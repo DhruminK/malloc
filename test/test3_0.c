@@ -1,29 +1,39 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   realloc.c                                          :+:      :+:    :+:   */
+/*   test3.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/04/08 17:38:46 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/13 17:11:28 by dkhatri          ###   ########.fr       */
+/*   Created: 2023/04/13 16:37:55 by dkhatri           #+#    #+#             */
+/*   Updated: 2023/04/13 17:09:52 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "alloc.h"
+#include <string.h>
 
-void	*realloc(void *addr, size_t size)
+#define M 1024
+
+void	print(char *s)
 {
-	void	*new_addr;
-	int		ret;
+	write(1, s, strlen(s));
+}
 
-	if (!addr)
-		return (malloc(size));
-	new_addr = 0;
-	ret = 0;
-	if (g_gen_info.zone_alloc[0] || g_gen_info.zone_alloc[1])
-		ret = zone_mem_realloc(addr, size, &new_addr);
-	if (!ret)
-		ret = mem_realloc(addr, size, &new_addr);
-	return (new_addr);
+int	main(void)
+{
+	char	*addr1;
+	char	*addr2;
+	char	*addr3;
+
+	addr1 = malloc(16 * M * M);
+	strcpy(addr1, "Bonjours\n");
+	print(addr1);
+	addr2 = malloc(16 * M * M);
+	write(1, "HERE\n", 5);
+	addr3 = realloc(addr1, 128 * M * M);
+	return (0);
+	addr3[127 * M * M] = 42;
+	print(addr3);
+	return (0);
 }

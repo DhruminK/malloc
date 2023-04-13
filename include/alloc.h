@@ -6,7 +6,7 @@
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/05 13:40:34 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/08 18:21:04 by dkhatri          ###   ########.fr       */
+/*   Updated: 2023/04/13 17:13:43 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 
 # define TZ_SIZE	10
 # define SZ_SIZE	20
+# define LZ_SIZE	3
 
 # define TZ_MAX		2
 # define SZ_MAX		4
@@ -36,8 +37,8 @@ typedef struct s_page_info
 
 typedef struct s_gen_info
 {
-	int				is_tiny_alloc;
-	int				is_small_alloc;
+	int				zone_alloc[2];
+	size_t			zone_max[2];
 	t_page_info		tiny;
 	t_page_info		small;
 	t_list			*large;
@@ -50,14 +51,12 @@ void				*malloc(size_t size);
 void				*realloc(void *addr, size_t size);
 void				free(void *addr);
 void				show_alloc_mem(void);
-void				ft_str_frerror(void *addr);
 
 int					zone_alloc_init(void);
 void				*zone_mem_alloc(size_t size, t_page_info *pg_info);
 void				*mem_alloc(size_t size);
 int					mem_realloc(void *addr, size_t size, void **new_addr);
-int					zone_mem_realloc(void *addr, size_t size,
-						t_page_info *pg_info, void **new_addr);
+int					zone_mem_realloc(void *addr, size_t size, void **new_addr);
 
 void				mem_dealloc_gen(t_list *pg,
 						t_page_info *pg_info, t_list *alloc);
@@ -78,6 +77,7 @@ int					page_end_alloc(t_list *pg, size_t size);
 int					new_page_alloc(t_list **head, size_t size, t_list **e);
 int					ft_check_zone_alloc(size_t addr, size_t size);
 
+void				ft_first_pg_dealloc(t_list *pg);
 void				ft_whole_pg_dealloc(t_list *pg);
 void				ft_page_dealloc_start(t_list *pg);
 void				ft_page_dealloc_start(t_list *pg);

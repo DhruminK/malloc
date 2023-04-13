@@ -6,7 +6,7 @@
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/08 14:10:32 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/08 18:21:46 by dkhatri          ###   ########.fr       */
+/*   Updated: 2023/04/13 15:07:48 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,20 +47,30 @@ int	mem_realloc(void *addr, size_t size, void **new_addr)
 	return (1);
 }
 
-int	zone_mem_realloc(void *addr, size_t size,
-		t_page_info *pg_info, void **new_addr)
+int	zone_mem_realloc(void *addr, size_t size, void **new_addr)
 {
+	t_page_info	*pg_info[2];
 	t_list		*alloc;
+	int			i;
 	int			ret;
 
-	if (!pg_info)
-		return (-1);
-	ret = find_addr_in_pg(pg_info, addr, &alloc);
-	if (ret < 1)
-		return (ret);
-	*new_addr = mem_realloc_in_page(pg_info, alloc, size);
-	if (*new_addr)
+	pg_info[0] = &(g_gen_info.tiny);
+	pg_info[1] = &(g_gen_info.small);
+	i = -1;
+	while (++i < 2)
+	{
+		if (g_gen_info.zone_alloc[i] == 0)
+			continue ;
+		*new_addr = 0;
+		alloc = 0;
+		ret = find_addr_in_pg(pg_info[i], addr, &alloc);
+		if (ret < 1)
+			continue ;
+		if (size < g_gen_info.zone_max[i])
+			*new_addr = mem_realloc_in_page(pg_info[i], alloc, size);
+		if (!*new_addr)
+			*new_addr = mem_realloc_new_ptr(0, alloc, size, pg_info[i]);
 		return (1);
-	*new_addr = mem_realloc_new_ptr(0, alloc, size, pg_info);
-	return (1);
+	}
+	return (0);
 }

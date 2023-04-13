@@ -6,7 +6,7 @@
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/05 14:42:44 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/06 19:29:38 by dkhatri          ###   ########.fr       */
+/*   Updated: 2023/04/13 15:10:22 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,8 +55,8 @@ void	show_alloc_mem(void)
 	t_list		*pg;
 	t_page_info	*pg_info;
 
-	print_zone("TINY : ", g_gen_info.is_tiny_alloc, &(g_gen_info.tiny));
-	print_zone("SMALL : ", g_gen_info.is_small_alloc, &(g_gen_info.small));
+	print_zone("TINY : ", g_gen_info.zone_alloc[0], &(g_gen_info.tiny));
+	print_zone("SMALL : ", g_gen_info.zone_alloc[1], &(g_gen_info.small));
 	ft_putstr_fd("LARGE : ", 1);
 	ft_puthex_fd((size_t)g_gen_info.large, 1, 1);
 	ft_putchar_fd('\n', 1);

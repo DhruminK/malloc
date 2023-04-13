@@ -6,34 +6,11 @@
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/07 14:55:50 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/09 18:13:39 by dkhatri          ###   ########.fr       */
+/*   Updated: 2023/04/13 12:44:34 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "alloc.h"
-
-void	ft_whole_pg_dealloc(t_list *pg)
-{
-	t_list		*e;
-	t_page_info	*pgi;
-	size_t		size;
-	void		*next;
-
-	if (!pg)
-		return ;
-	next = pg->next;
-	e = (g_gen_info.large);
-	while (e && e->next != pg)
-		e = e->next;
-	pgi = (t_page_info *)(pg->content);
-	size = (pgi->page_end - pgi->page_start);
-	if (munmap_dealloc((void *)pgi->page_start, size) == -1)
-		return ;
-	if (e)
-		e->next = next;
-	else
-		g_gen_info.large = next;
-}
 
 t_list	*ft_page_dealloc_start_helper(t_list *pg)
 {

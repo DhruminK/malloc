@@ -6,7 +6,7 @@
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/06 18:53:41 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/07 14:14:27 by dkhatri          ###   ########.fr       */
+/*   Updated: 2023/04/13 15:09:37 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,16 +18,18 @@ int	zone_alloc_init(void)
 
 	pg_size = (size_t)(getpagesize());
 	g_gen_info.pg_size = pg_size;
-	if (g_gen_info.is_tiny_alloc && g_gen_info.is_small_alloc)
+	if (g_gen_info.zone_alloc[0] && g_gen_info.zone_alloc[1])
 		return (1);
-	if (!(g_gen_info.is_tiny_alloc)
+	if (!(g_gen_info.zone_alloc[0])
 		&& new_zone_alloc(&(g_gen_info.tiny), TZ_SIZE * pg_size) == -1)
 		return (-1);
-	g_gen_info.is_tiny_alloc = 1;
-	if (!(g_gen_info.is_small_alloc)
+	g_gen_info.zone_max[0] = (TZ_SIZE * pg_size) / 100;
+	g_gen_info.zone_alloc[0] = 1;
+	if (!(g_gen_info.zone_alloc[1])
 		&& new_zone_alloc(&(g_gen_info.small), SZ_SIZE * pg_size) == -1)
 		return (-1);
-	g_gen_info.is_small_alloc = 1;
+	g_gen_info.zone_max[1] = (SZ_SIZE * pg_size) / 100;
+	g_gen_info.zone_alloc[1] = 1;
 	return (1);
 }
 
