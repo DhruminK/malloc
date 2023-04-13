@@ -6,7 +6,7 @@
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/05 13:40:34 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/13 17:13:43 by dkhatri          ###   ########.fr       */
+/*   Updated: 2023/04/13 18:27:25 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,9 @@ typedef struct s_gen_info
 	t_page_info		small;
 	t_list			*large;
 	size_t			pg_size;
+
+	int				is_mutex_alloc;
+	pthread_mutex_t	mutex;
 }					t_gen_info;
 
 extern t_gen_info	g_gen_info;

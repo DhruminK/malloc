@@ -6,7 +6,7 @@
 /*   By: dkhatri <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/08 14:10:32 by dkhatri           #+#    #+#             */
-/*   Updated: 2023/04/13 15:07:48 by dkhatri          ###   ########.fr       */
+/*   Updated: 2023/04/13 17:36:04 by dkhatri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,11 +15,16 @@
 void	*mem_realloc_new_ptr(t_list *pg, t_list *alloc,
 		size_t size, t_page_info *pg_info)
 {
-	void		*new_addr;
+	void	*new_addr;
 
 	if (!alloc)
 		return (0);
-	new_addr = malloc(size);
+	if (g_gen_info.zone_alloc[0] && size < g_gen_info.zone_max[0])
+		new_addr = zone_mem_alloc(size, &(g_gen_info.tiny));
+	else if (g_gen_info.zone_alloc[1] && size < g_gen_info.zone_max[1])
+		new_addr = zone_mem_alloc(size, &(g_gen_info.small));
+	else
+		new_addr = mem_alloc(size);
 	if (!new_addr)
 		return (0);
 	if (size > alloc->size)
