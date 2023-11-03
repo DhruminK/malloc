@@ -23,6 +23,12 @@ INC_DIR = include/
 SRC_DIR = src
 OBJ_DIR = obj
 
+ifeq ($(shell uname -s), Linux)
+	MAIN_CFLAG = -shared
+else
+	MAIN_CFLAG = -dynamiclib
+endif
+
 INC_DEPS = alloc.h helper_func.h
 DEPS = $(addprefix $(INC_DIR), $(INC_DEPS))
 
@@ -47,7 +53,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(DEPS)
 all: $(NAME)
 
 $(NAME): $(OBJS)
-	@gcc -dynamiclib -o $(NAME) $(OBJS) -lpthread
+	@gcc $(MAIN_CFLAG) -o $(NAME) $(OBJS) -lpthread
 	@echo "Compiling $@ \033[1;32m[OK]\033[0m"
 	@ln -s -f $(NAME) $(LIBNAME)
 

@@ -14,6 +14,7 @@
 # define HELPER_FUNC_H
 
 # include <unistd.h>
+# include <inttypes.h>
 # include <limits.h>
 
 typedef struct s_list
